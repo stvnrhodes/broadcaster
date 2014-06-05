@@ -11,6 +11,7 @@ const (
 	defaultWait = time.Second
 )
 
+// Options allows specifying additional options when creating a broadcaster.
 type Options struct {
 	// Time to wait on a subscriber's channel before giving up. Default is 1s.
 	WaitTime time.Duration

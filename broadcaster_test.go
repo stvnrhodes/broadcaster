@@ -14,7 +14,7 @@ func ExampleCaster() {
 
 	// Wait groups are added to make the example more deterministic.
 	// Remove these, and the responses could happen in any order.
-	// In most cases, this is fine.
+	// In most cases, having no wait groups is fine.
 	var wg, wg2 sync.WaitGroup
 	wg.Add(1)
 	wg2.Add(1)
