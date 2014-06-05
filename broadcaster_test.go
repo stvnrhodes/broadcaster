@@ -1,11 +1,63 @@
 package broadcaster
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
 	"github.com/stvnrhodes/broadcaster"
 )
+
+func ExampleCaster() {
+	// Create a new broadcaster
+	b := broadcaster.New()
+
+	// Wait groups are added to make the example more deterministic.
+	// Remove these, and the responses could happen in any order.
+	// In most cases, this is fine.
+	var wg, wg2 sync.WaitGroup
+	wg.Add(1)
+	wg2.Add(1)
+
+	// Create a channel subscribed to the broadcaster
+	done := make(chan struct{})
+	ch := b.Subscribe(done)
+
+	// Read all messages from the channel.
+	go func() {
+		defer wg.Done()
+		for msg := range ch {
+			fmt.Println("Hello", msg)
+		}
+	}()
+
+	// Create another channel. This one won't unsubscribe, so the argument is nil.
+	ch2 := b.Subscribe(nil)
+
+	// Read all messages from the channel.
+	go func() {
+		defer wg2.Done()
+		wg.Wait()
+		for msg := range ch2 {
+			fmt.Println("Goodbye", msg)
+		}
+	}()
+
+	// Cast to the channel
+	b.Cast("World")
+	b.Cast(123)
+	close(done)
+	wg.Wait()
+	b.Cast("examples")
+	b.Close()
+	wg2.Wait()
+	// Output:
+	// Hello World
+	// Hello 123
+	// Goodbye World
+	// Goodbye 123
+	// Goodbye examples
+}
 
 func runAndCheck(t *testing.T, ch <-chan interface{}, length int, wg *sync.WaitGroup) {
 	i := 0
