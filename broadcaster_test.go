@@ -1,4 +1,4 @@
-package broadcaster
+package broadcaster_test
 
 import (
 	"fmt"
