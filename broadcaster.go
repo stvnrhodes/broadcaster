@@ -1,4 +1,4 @@
-// broadcaster allows broadcasting a value over many channels at once.
+// Package broadcaster allows broadcasting a value over many channels at once.
 package broadcaster
 
 import (
