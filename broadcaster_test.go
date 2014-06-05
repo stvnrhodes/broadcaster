@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stvnrhodes/broadcaster"
 )
@@ -186,4 +187,53 @@ func TestAfterClose(t *testing.T) {
 
 	expectPanic(t, b.Close)
 	expectPanic(t, func() { b.Cast(1) })
+}
+
+func BenchmarkSubscriberNum(b *testing.B) {
+	caster := broadcaster.New()
+	var wg sync.WaitGroup
+
+	for i := 0; i < b.N; i++ {
+		wg.Add(1)
+		ch := caster.Subscribe(nil)
+		go func() {
+			for _ = range ch {
+				// Empty the channel
+			}
+			wg.Done()
+		}()
+	}
+
+	caster.Cast(struct{}{})
+	caster.Cast("test string")
+	caster.Cast(123)
+	caster.Close()
+	wg.Wait()
+}
+
+func Benchmark1Subscriber(b *testing.B)     { benchmarkNSubscribers(b, 1) }
+func Benchmark10Subscribers(b *testing.B)   { benchmarkNSubscribers(b, 10) }
+func Benchmark100Subscribers(b *testing.B)  { benchmarkNSubscribers(b, 100) }
+func Benchmark1000Subscribers(b *testing.B) { benchmarkNSubscribers(b, 1000) }
+
+func benchmarkNSubscribers(b *testing.B, n int) {
+	caster := broadcaster.New(&broadcaster.Options{WaitTime: time.Hour})
+	var wg sync.WaitGroup
+
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		ch := caster.Subscribe(nil)
+		go func() {
+			for _ = range ch {
+				// Empty the channel
+			}
+			wg.Done()
+		}()
+	}
+
+	for i := 0; i < b.N; i++ {
+		caster.Cast("test string")
+	}
+	caster.Close()
+	wg.Wait()
 }
