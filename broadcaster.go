@@ -96,7 +96,7 @@ func (b *broadcaster) run() {
 		case m := <-b.cast:
 			for _, s := range b.subbers {
 				s.wg.Add(1)
-				go b.trySend(s, m)
+				b.trySend(s, m)
 			}
 
 		case <-b.finish:

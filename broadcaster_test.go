@@ -13,39 +13,38 @@ func ExampleCaster() {
 	// Create a new broadcaster
 	b := broadcaster.New()
 
+	// Create a channel subscribed to the broadcaster
+	done := make(chan struct{})
+	ch := b.Subscribe(done)
+
 	// Wait groups are added to make the example more deterministic.
-	// Remove these, and the responses could happen in any order.
 	// In most cases, having no wait groups is fine.
 	var wg, wg2 sync.WaitGroup
 	wg.Add(1)
 	wg2.Add(1)
 
-	// Create a channel subscribed to the broadcaster
-	done := make(chan struct{})
-	ch := b.Subscribe(done)
-
 	// Read all messages from the channel.
 	go func() {
-		defer wg.Done()
 		for msg := range ch {
 			fmt.Println("Hello", msg)
 		}
+		wg.Done()
 	}()
+
+	b.Cast("World")
 
 	// Create another channel. This one won't unsubscribe, so the argument is nil.
 	ch2 := b.Subscribe(nil)
 
 	// Read all messages from the channel.
 	go func() {
-		defer wg2.Done()
-		wg.Wait()
 		for msg := range ch2 {
 			fmt.Println("Goodbye", msg)
 		}
+		wg2.Done()
 	}()
 
 	// Cast to the channel
-	b.Cast("World")
 	b.Cast(123)
 	close(done)
 	wg.Wait()
@@ -55,7 +54,6 @@ func ExampleCaster() {
 	// Output:
 	// Hello World
 	// Hello 123
-	// Goodbye World
 	// Goodbye 123
 	// Goodbye examples
 }
