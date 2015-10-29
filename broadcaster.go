@@ -1,5 +1,5 @@
 // Package broadcaster allows broadcasting a value over many channels at once.
-package broadcaster
+package broadcaster // import "stvn.cc/broadcaster"
 
 import (
 	"sync"
