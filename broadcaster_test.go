@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"stvn.cc/broadcaster"
+	"github.com/stvnrhodes/broadcaster"
 )
 
 func ExampleCaster() {
