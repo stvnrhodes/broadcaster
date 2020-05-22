@@ -156,7 +156,7 @@ func TestUnsubscribeMany(t *testing.T) {
 func expectPanic(t *testing.T, f func()) {
 	defer func() {
 		if r := recover(); r == nil {
-			t.Errorf("expected panic for %v", f)
+			t.Errorf("expected panic for %T", f)
 		}
 	}()
 	f()
